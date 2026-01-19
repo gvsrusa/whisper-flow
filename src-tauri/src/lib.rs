@@ -20,6 +20,18 @@ fn get_settings_path() -> PathBuf {
     config_dir.join("settings.json")
 }
 
+/// Get default hotkey modifiers based on platform
+fn get_default_hotkey_modifiers() -> Vec<String> {
+    #[cfg(target_os = "macos")]
+    {
+        vec!["alt".to_string()]
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        vec!["ctrl".to_string(), "shift".to_string()]
+    }
+}
+
 /// Load settings from disk
 fn load_settings_from_disk() -> AppSettings {
     let path = get_settings_path();
@@ -42,6 +54,8 @@ fn load_settings_from_disk() -> AppSettings {
         api_key: "".into(),
         provider: "groq".into(),
         model: "whisper-large-v3".into(),
+        hotkey_modifiers: get_default_hotkey_modifiers(),
+        hotkey_key: "Space".into(),
     }
 }
 
@@ -70,6 +84,97 @@ pub struct AppSettings {
     pub api_key: String,
     pub provider: String,
     pub model: String,
+    #[serde(default = "get_default_hotkey_modifiers")]
+    pub hotkey_modifiers: Vec<String>,
+    #[serde(default = "default_hotkey_key")]
+    pub hotkey_key: String,
+}
+
+fn default_hotkey_key() -> String {
+    "Space".to_string()
+}
+
+/// Parse modifier strings to Modifiers bitflags
+fn parse_modifiers(modifiers: &[String]) -> Modifiers {
+    let mut mods = Modifiers::empty();
+    for m in modifiers {
+        match m.to_lowercase().as_str() {
+            "alt" | "opt" | "option" => mods |= Modifiers::ALT,
+            "ctrl" | "control" => mods |= Modifiers::CONTROL,
+            "shift" => mods |= Modifiers::SHIFT,
+            "meta" | "cmd" | "command" | "super" => mods |= Modifiers::META,
+            _ => {}
+        }
+    }
+    mods
+}
+
+/// Parse key string to Code enum
+fn parse_key_code(key: &str) -> Option<Code> {
+    match key.to_lowercase().as_str() {
+        "space" => Some(Code::Space),
+        "a" => Some(Code::KeyA),
+        "b" => Some(Code::KeyB),
+        "c" => Some(Code::KeyC),
+        "d" => Some(Code::KeyD),
+        "e" => Some(Code::KeyE),
+        "f" => Some(Code::KeyF),
+        "g" => Some(Code::KeyG),
+        "h" => Some(Code::KeyH),
+        "i" => Some(Code::KeyI),
+        "j" => Some(Code::KeyJ),
+        "k" => Some(Code::KeyK),
+        "l" => Some(Code::KeyL),
+        "m" => Some(Code::KeyM),
+        "n" => Some(Code::KeyN),
+        "o" => Some(Code::KeyO),
+        "p" => Some(Code::KeyP),
+        "q" => Some(Code::KeyQ),
+        "r" => Some(Code::KeyR),
+        "s" => Some(Code::KeyS),
+        "t" => Some(Code::KeyT),
+        "u" => Some(Code::KeyU),
+        "v" => Some(Code::KeyV),
+        "w" => Some(Code::KeyW),
+        "x" => Some(Code::KeyX),
+        "y" => Some(Code::KeyY),
+        "z" => Some(Code::KeyZ),
+        "1" => Some(Code::Digit1),
+        "2" => Some(Code::Digit2),
+        "3" => Some(Code::Digit3),
+        "4" => Some(Code::Digit4),
+        "5" => Some(Code::Digit5),
+        "6" => Some(Code::Digit6),
+        "7" => Some(Code::Digit7),
+        "8" => Some(Code::Digit8),
+        "9" => Some(Code::Digit9),
+        "0" => Some(Code::Digit0),
+        "f1" => Some(Code::F1),
+        "f2" => Some(Code::F2),
+        "f3" => Some(Code::F3),
+        "f4" => Some(Code::F4),
+        "f5" => Some(Code::F5),
+        "f6" => Some(Code::F6),
+        "f7" => Some(Code::F7),
+        "f8" => Some(Code::F8),
+        "f9" => Some(Code::F9),
+        "f10" => Some(Code::F10),
+        "f11" => Some(Code::F11),
+        "f12" => Some(Code::F12),
+        _ => None,
+    }
+}
+
+/// Build a HotKey from settings
+fn build_hotkey_from_settings(settings: &AppSettings) -> Option<HotKey> {
+    let modifiers = parse_modifiers(&settings.hotkey_modifiers);
+    let code = parse_key_code(&settings.hotkey_key)?;
+
+    if modifiers.is_empty() {
+        Some(HotKey::new(None, code))
+    } else {
+        Some(HotKey::new(Some(modifiers), code))
+    }
 }
 
 pub struct AppState {
@@ -239,24 +344,33 @@ pub fn run() {
         .setup(|app| {
             // Trigger Microphone Permission on Startup
 
-            // Register Global Hotkey
-            // macOS: Option+Space (Alt+Space)
-            // Windows/Linux: Ctrl+Shift+Space (Alt+Space conflicts with window menu)
+            // Register Global Hotkey from settings
+            let settings = load_settings_from_disk();
             let manager = GlobalHotKeyManager::new().unwrap();
 
-            #[cfg(target_os = "macos")]
-            let hotkey = HotKey::new(Some(Modifiers::ALT), Code::Space);
-
-            #[cfg(not(target_os = "macos"))]
-            let hotkey = HotKey::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::Space);
+            let hotkey = match build_hotkey_from_settings(&settings) {
+                Some(hk) => hk,
+                None => {
+                    // Fallback to default if settings are invalid
+                    #[cfg(target_os = "macos")]
+                    {
+                        HotKey::new(Some(Modifiers::ALT), Code::Space)
+                    }
+                    #[cfg(not(target_os = "macos"))]
+                    {
+                        HotKey::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::Space)
+                    }
+                }
+            };
 
             if let Err(e) = manager.register(hotkey) {
                 eprintln!("Failed to register hotkey: {:?}", e);
             } else {
-                #[cfg(target_os = "macos")]
-                println!("Global Hotkey (Option+Space) registered successfully!");
-                #[cfg(not(target_os = "macos"))]
-                println!("Global Hotkey (Ctrl+Shift+Space) registered successfully!");
+                println!(
+                    "Global Hotkey ({} + {}) registered successfully!",
+                    settings.hotkey_modifiers.join("+"),
+                    settings.hotkey_key
+                );
             }
 
             // IMPORTANT: Manage the manager to keep it alive.
