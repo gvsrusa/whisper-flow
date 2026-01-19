@@ -29,14 +29,20 @@ Built with **Rust (Tauri)** and **React**, Verba lets you dictate text into *any
 5. Configure your API key in Settings → Providers
 
 <details>
-<summary>⚠️ If you see "Verba is damaged and can't be opened"</summary>
+<summary>⚠️ If you see "install.command cannot be opened" or "Verba is damaged"</summary>
 
+This happens because the app isn't signed by Apple. You have two options:
+
+**Option 1: Right-Click Method (Easier)**
+1. **Right-click** `install.command` and select **Open**
+2. Click **Open** in the dialog box that appears
+
+**Option 2: Terminal Method (Guaranteed)**
 Open **Terminal** and run:
 ```bash
 xattr -cr ~/Downloads/Verba_x.x.x_macos
 ```
-Then open `Verba.app` directly.
-
+Then you can open `Verba.app` normally.
 </details>
 
 ### Windows Installation
