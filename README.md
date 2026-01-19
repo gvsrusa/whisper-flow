@@ -76,13 +76,37 @@ This command will:
 ## 🛠 Usage & Configuration
 
 ### Granting Permissions (Critical)
-For the app to type text into other windows, it needs **Accessibility Permissions**.
 
-1.  **Run the app**.
-2.  Go to **System Settings > Privacy & Security > Accessibility**.
-3.  Find your Terminal (if running via `npm run tauri dev`) or "Wispr Flow Clone" (if installed).
-4.  **Enable the toggle**.
-5.  *Restart the app if necessary*.
+For the app to type text into other windows, it needs **Accessibility Permissions**. This allows the app to simulate keyboard input to type transcribed text into any active window.
+
+#### First-Time Setup
+
+1.  **Run the app** — a permission dialog will appear.
+2.  Click **"Open System Settings"**.
+3.  Go to **Privacy & Security → Accessibility**.
+4.  Find "tauri-app" or your app in the list.
+5.  **Toggle it ON** (you may need to click the 🔒 lock icon and enter your password first).
+6.  **Restart the app** for changes to take effect.
+
+#### After Rebuilding the App
+
+> ⚠️ **Important**: Every time you rebuild and reinstall the app, macOS may treat it as a "new" application. You'll need to remove the old entry and re-grant permission.
+
+1.  Open **System Settings → Privacy & Security → Accessibility**.
+2.  Click the **🔒 lock icon** at the bottom-left and enter your password.
+3.  Find the old "tauri-app" entry in the list.
+4.  Select it and click the **minus (−) button** to remove it.
+5.  Rebuild and run your app:
+    ```bash
+    npm run tauri build
+    ```
+6.  When the permission dialog appears, click **"Open System Settings"**.
+7.  The app should now appear in the list — **toggle it ON**.
+8.  If not listed, click the **plus (+) button** and manually add your app from the build output:
+    ```
+    src-tauri/target/release/bundle/macos/tauri-app.app
+    ```
+9.  **Restart the app** for the permission to take effect.
 
 ### Setting Up AI Providers
 1.  Click the **Settings** (gear icon) in the app.
