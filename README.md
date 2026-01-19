@@ -47,15 +47,25 @@ xattr -cr /Applications/Verba.app
 </details>
 
 ### Windows Installation
-
-1. Download the latest `Verba_x.x.x_x64-setup.exe` or `.msi` from the [Releases Page](https://github.com/gvsrusa/verba/releases)
-2. Run the installer
-3. Launch Verba from the Start menu
-4. Configure your API key in Settings → Providers
-
-> **Note**: Windows may show a SmartScreen warning. Click "More info" → "Run anyway".
-
----
+ 
+ **🚀 The Easiest Way**
+ 
+ Copy and paste this into PowerShell:
+ 
+ ```powershell
+ iwr https://raw.githubusercontent.com/gvsrusa/verba/main/scripts/install.ps1 -useb | iex
+ ```
+ 
+ **Manual Method**
+ 
+ 1. Download the latest `Verba_x.x.x_x64-setup.exe` or `.msi` from the [Releases Page](https://github.com/gvsrusa/verba/releases)
+ 2. Run the installer
+ 3. Launch Verba from the Start menu
+ 4. Configure your API key in Settings → Providers
+ 
+ > **Note**: Windows may show a SmartScreen warning. Click "More info" → "Run anyway".
+ 
+ ---
 
 ## � Getting API Keys
 
