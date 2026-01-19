@@ -20,23 +20,22 @@ Built with **Rust (Tauri)** and **React**, Verba lets you dictate text into *any
 
 1. Download the latest `Verba_x.x.x_macos.zip` from the [Releases Page](https://github.com/gvsrusa/whisper-flow/releases)
 2. Extract the zip file
-3. **Double-click `install.command`** — this removes macOS restrictions and opens the app
+3. **Right-click `install.command`** → **Open** → Click **Open** when prompted
 4. Grant **Accessibility** and **Microphone** permissions when prompted
 5. Configure your API key in Settings → Providers
 6. (Optional) Move **Verba.app** to your Applications folder
 
 ### ⚠️ If You See "Verba is damaged and can't be opened"
 
-If you didn't use `install.command`, or if it still shows an error:
+If the install script doesn't work, open **Terminal** and run:
 
-1. Open **Terminal** (Applications → Utilities → Terminal)
-2. Run:
-   ```bash
-   xattr -cr ~/Downloads/Verba.app
-   ```
-3. Open Verba again — it should work!
+```bash
+xattr -cr ~/Downloads/Verba_0.2.0_macos
+```
 
-> **Why this happens**: macOS blocks unsigned apps from the internet. The install script (or `xattr` command) removes this restriction.
+Then run `install.command` or open `Verba.app` directly.
+
+> **Why this happens**: macOS blocks unsigned apps from the internet. The `xattr -cr` command removes this restriction.
 
 ---
 
