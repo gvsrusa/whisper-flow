@@ -50,7 +50,12 @@ fn start_recording(state: State<AppState>) -> Result<String, String> {
     }
 
     let path = std::env::temp_dir().join("whisper_flow_recording.wav");
-    recorder.start(path).map_err(|e| e.to_string())?;
+    if let Err(e) = recorder.start(path.clone()) {
+        eprintln!("Failed to start recording: {}", e);
+        let log_path = std::env::temp_dir().join("whisper_debug.log");
+        let _ = std::fs::write(&log_path, format!("Start Error: {}", e));
+        return Err(e.to_string());
+    }
     *is_rec = true;
 
     println!("Recording started...");
