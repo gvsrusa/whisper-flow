@@ -20,25 +20,34 @@ fi
 # Strip 'v' prefix if present (v0.2.0 -> 0.2.0)
 VERSION=${LATEST_TAG#v}
 
-echo -e "📦 Installing Version: ${GREEN}$VERSION${NC}"
+# 2. Detect Architecture
+ARCH=$(uname -m)
+if [ "$ARCH" == "arm64" ]; then
+    FILE_ARCH="aarch64"
+else
+    FILE_ARCH="x64"
+fi
 
-# 2. Construct download URL (adjust naming convention as needed)
-# Assumes filename format: Verba_0.2.0_macos.zip
-DOWNLOAD_URL="https://github.com/gvsrusa/verba/releases/download/$LATEST_TAG/Verba_${VERSION}_macos.zip"
+echo -e "📦 Installing Version: ${GREEN}$VERSION${NC} for ${GREEN}$FILE_ARCH${NC}"
+
+# 3. Construct download URL
+# Expecting: Verba_0.2.2_aarch64.dmg or Verba_0.2.2_x64.dmg
+DOWNLOAD_URL="https://github.com/gvsrusa/verba/releases/download/$LATEST_TAG/Verba_${VERSION}_${FILE_ARCH}.dmg"
 
 TEMP_DIR=$(mktemp -d)
-ZIP_FILE="$TEMP_DIR/verba.zip"
+DMG_FILE="$TEMP_DIR/verba.dmg"
 
-# 3. Download
+# 4. Download
 echo "⬇️  Downloading Verba..."
-curl -L --fail -o "$ZIP_FILE" "$DOWNLOAD_URL"
+curl -L --fail -o "$DMG_FILE" "$DOWNLOAD_URL"
 
-if [ ! -f "$ZIP_FILE" ]; then
+if [ ! -f "$DMG_FILE" ]; then
     echo -e "${RED}❌ Download failed.${NC}"
+    echo "URL: $DOWNLOAD_URL"
     exit 1
 fi
 
-# 4. Determine Install Directory
+# 5. Determine Install Directory
 INSTALL_DIR="/Applications"
 if [ ! -w "$INSTALL_DIR" ]; then
     echo "⚠️  /Applications is not writable. Installing to ~/Applications..."
@@ -53,13 +62,27 @@ if [ -d "$INSTALL_DIR/Verba.app" ]; then
     rm -rf "$INSTALL_DIR/Verba.app"
 fi
 
-unzip -q -o "$ZIP_FILE" -d "$INSTALL_DIR"
+# 6. Mount DMG and Install
+echo "💿 Mounting DMG..."
+# Attach and get mount point
+MOUNT_POINT=$(hdiutil attach -nobrowse "$DMG_FILE" | grep "/Volumes" | awk '{print $NF}')
 
-# 5. Remove quarantine (Critical step)
+if [ -z "$MOUNT_POINT" ]; then
+    echo -e "${RED}❌ Failed to mount DMG.${NC}"
+    exit 1
+fi
+
+echo "📋 Copying Verba.app..."
+cp -R "$MOUNT_POINT/Verba.app" "$INSTALL_DIR/"
+
+echo "⏏️  Unmounting..."
+hdiutil detach "$MOUNT_POINT" -quiet
+
+# 7. Remove quarantine (Critical step)
 echo "🔓 Removing security restrictions..."
 xattr -cr "$INSTALL_DIR/Verba.app"
 
-# 6. Cleanup
+# 8. Cleanup
 rm -rf "$TEMP_DIR"
 
 echo -e "${GREEN}✅ Installation Successful!${NC}"
