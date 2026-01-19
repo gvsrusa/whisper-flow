@@ -239,14 +239,24 @@ pub fn run() {
         .setup(|app| {
             // Trigger Microphone Permission on Startup
 
-            // Register Global Hotkey: Option+Space (Alt+Space)
+            // Register Global Hotkey
+            // macOS: Option+Space (Alt+Space)
+            // Windows/Linux: Ctrl+Shift+Space (Alt+Space conflicts with window menu)
             let manager = GlobalHotKeyManager::new().unwrap();
+
+            #[cfg(target_os = "macos")]
             let hotkey = HotKey::new(Some(Modifiers::ALT), Code::Space);
+
+            #[cfg(not(target_os = "macos"))]
+            let hotkey = HotKey::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::Space);
 
             if let Err(e) = manager.register(hotkey) {
                 eprintln!("Failed to register hotkey: {:?}", e);
             } else {
+                #[cfg(target_os = "macos")]
                 println!("Global Hotkey (Option+Space) registered successfully!");
+                #[cfg(not(target_os = "macos"))]
+                println!("Global Hotkey (Ctrl+Shift+Space) registered successfully!");
             }
 
             // IMPORTANT: Manage the manager to keep it alive.

@@ -1,14 +1,16 @@
 # Verba - AI Dictation Assistant
 
-A high-performance, system-wide AI dictation app for macOS.
+A high-performance, system-wide AI dictation app for **macOS** and **Windows**.
 Built with **Rust (Tauri)** and **React**, Verba lets you dictate text into *any* application using a global hotkey.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Platform](https://img.shields.io/badge/platform-macOS-lightgrey.svg)
+![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows-lightgrey.svg)
 
 ## ✨ Features
 
-- **Global Hotkey**: Press **Option + Space** anywhere to start/stop recording
+- **Global Hotkey**: 
+  - **macOS**: Option + Space
+  - **Windows**: Ctrl + Shift + Space
 - **Multi-Provider Support**: Use **Groq** (ultra-fast), **OpenRouter**, or **Grok (xAI)**
 - **Instant Typing**: Transcribed text is typed directly into your active window
 - **Persistent Settings**: Your API keys are stored locally and persist across restarts
@@ -16,26 +18,35 @@ Built with **Rust (Tauri)** and **React**, Verba lets you dictate text into *any
 
 ---
 
-## 📥 Quick Start (Download)
+## 📥 Quick Start
+
+### macOS Installation
 
 1. Download the latest `Verba_x.x.x_macos.zip` from the [Releases Page](https://github.com/gvsrusa/whisper-flow/releases)
 2. Extract the zip file
 3. **Right-click `install.command`** → **Open** → Click **Open** when prompted
 4. Grant **Accessibility** and **Microphone** permissions when prompted
 5. Configure your API key in Settings → Providers
-6. (Optional) Move **Verba.app** to your Applications folder
 
-### ⚠️ If You See "Verba is damaged and can't be opened"
+<details>
+<summary>⚠️ If you see "Verba is damaged and can't be opened"</summary>
 
-If the install script doesn't work, open **Terminal** and run:
-
+Open **Terminal** and run:
 ```bash
-xattr -cr ~/Downloads/Verba_0.2.0_macos
+xattr -cr ~/Downloads/Verba_x.x.x_macos
 ```
+Then open `Verba.app` directly.
 
-Then run `install.command` or open `Verba.app` directly.
+</details>
 
-> **Why this happens**: macOS blocks unsigned apps from the internet. The `xattr -cr` command removes this restriction.
+### Windows Installation
+
+1. Download the latest `Verba_x.x.x_x64-setup.exe` or `.msi` from the [Releases Page](https://github.com/gvsrusa/whisper-flow/releases)
+2. Run the installer
+3. Launch Verba from the Start menu
+4. Configure your API key in Settings → Providers
+
+> **Note**: Windows may show a SmartScreen warning. Click "More info" → "Run anyway".
 
 ---
 
@@ -128,9 +139,11 @@ Verba needs two permissions to work:
 ## 🎤 How to Dictate
 
 1. Click into any text input (Notes, VS Code, Slack, browser, etc.)
-2. Press **Option + Space** to start recording
+2. Press the hotkey to start recording:
+   - **macOS**: Option + Space
+   - **Windows**: Ctrl + Shift + Space
 3. Speak clearly
-4. Press **Option + Space** again to stop
+4. Press the hotkey again to stop
 5. Wait 1-2 seconds for transcription
 6. Text appears in your active input!
 
