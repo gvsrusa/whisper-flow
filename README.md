@@ -27,11 +27,11 @@ Built with **Rust (Tauri)** and **React**, Verba lets you dictate text into *any
 Copy and paste this one line into your Terminal. It handles everything for you (downloads, installs, and fixes the "damaged app" error).
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/gvsrusa/whisper-flow/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/gvsrusa/verba/main/scripts/install.sh | bash
 ```
 
 **Manual Method**
-1. Download the latest `Verba_x.x.x_macos.zip` from the [Releases Page](https://github.com/gvsrusa/whisper-flow/releases)
+1. Download the latest `Verba_x.x.x_macos.zip` from the [Releases Page](https://github.com/gvsrusa/verba/releases)
 2. Extract the zip file
 3. **Right-click `install.command`** → **Open** → Click **Open** when prompted
 4. Grant **Accessibility** and **Microphone** permissions when prompted
@@ -48,7 +48,7 @@ xattr -cr /Applications/Verba.app
 
 ### Windows Installation
 
-1. Download the latest `Verba_x.x.x_x64-setup.exe` or `.msi` from the [Releases Page](https://github.com/gvsrusa/whisper-flow/releases)
+1. Download the latest `Verba_x.x.x_x64-setup.exe` or `.msi` from the [Releases Page](https://github.com/gvsrusa/verba/releases)
 2. Run the installer
 3. Launch Verba from the Start menu
 4. Configure your API key in Settings → Providers
@@ -201,8 +201,8 @@ You can change the hotkey in **Settings → General → Keyboard shortcuts**.
 ### Installation
 
 ```bash
-git clone https://github.com/gvsrusa/whisper-flow.git
-cd whisper-flow
+git clone https://github.com/gvsrusa/verba.git
+cd verba
 npm install
 ```
 
@@ -245,7 +245,7 @@ A: Remove the old entry in System Settings → Accessibility, then add the new a
 
 Your settings (including API keys) are stored locally at:
 ```
-~/Library/Application Support/whisper-flow/settings.json
+~/Library/Application Support/verba/settings.json
 ```
 
 ---

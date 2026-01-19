@@ -10,7 +10,7 @@ echo -e "${GREEN}🚀 Starting Verba Installer...${NC}"
 
 # 1. Fetch latest release tag from GitHub API
 echo "🔍 Finding latest version..."
-LATEST_TAG=$(curl -s https://api.github.com/repos/gvsrusa/whisper-flow/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+LATEST_TAG=$(curl -s https://api.github.com/repos/gvsrusa/verba/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
 
 if [ -z "$LATEST_TAG" ]; then
     echo -e "${RED}❌ Failed to find latest release. Please check your internet connection.${NC}"
@@ -24,7 +24,7 @@ echo -e "📦 Installing Version: ${GREEN}$VERSION${NC}"
 
 # 2. Construct download URL (adjust naming convention as needed)
 # Assumes filename format: Verba_0.2.0_macos.zip
-DOWNLOAD_URL="https://github.com/gvsrusa/whisper-flow/releases/download/$LATEST_TAG/Verba_${VERSION}_macos.zip"
+DOWNLOAD_URL="https://github.com/gvsrusa/verba/releases/download/$LATEST_TAG/Verba_${VERSION}_macos.zip"
 
 TEMP_DIR=$(mktemp -d)
 ZIP_FILE="$TEMP_DIR/verba.zip"

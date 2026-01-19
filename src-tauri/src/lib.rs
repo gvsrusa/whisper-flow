@@ -12,7 +12,7 @@ use tauri::{AppHandle, Emitter, Manager, State};
 fn get_settings_path() -> PathBuf {
     let config_dir = dirs::config_dir()
         .unwrap_or_else(|| std::env::temp_dir())
-        .join("whisper-flow");
+        .join("verba");
 
     // Create directory if it doesn't exist
     let _ = fs::create_dir_all(&config_dir);
