@@ -52,6 +52,7 @@ fn start_recording(state: State<AppState>) -> Result<String, String> {
     let path = std::env::temp_dir().join("whisper_flow_recording.wav");
     if let Err(e) = recorder.start(path.clone()) {
         eprintln!("Failed to start recording: {}", e);
+        // Try to log to a file for debugging
         let log_path = std::env::temp_dir().join("whisper_debug.log");
         let _ = std::fs::write(&log_path, format!("Start Error: {}", e));
         return Err(e.to_string());
@@ -175,28 +176,6 @@ pub fn run() {
         })
         .setup(|app| {
             // Trigger Microphone Permission on Startup
-            std::thread::spawn(|| {
-                use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-                println!("Checking microphone permissions...");
-                let host = cpal::default_host();
-                if let Some(device) = host.default_input_device() {
-                    if let Ok(config) = device.default_input_config() {
-                        // Attempt to build a stream to trigger the OS prompt
-                        let err_fn = |_| {};
-                        let stream = device.build_input_stream(
-                            &config.into(),
-                            move |_data: &[f32], _: &_| {},
-                            err_fn,
-                            None,
-                        );
-                        if let Ok(s) = stream {
-                            let _ = s.play();
-                            // Keep alive briefly then drop
-                            std::thread::sleep(std::time::Duration::from_millis(100));
-                        }
-                    }
-                }
-            });
 
             // Register Global Hotkey: Option+Space (Alt+Space)
             let manager = GlobalHotKeyManager::new().unwrap();
