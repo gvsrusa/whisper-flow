@@ -55,7 +55,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onOpenSettin
       {/* Logo Area */}
       <div style={{ padding: '0 15px 30px 15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
         <div style={{ fontWeight: 'bold', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
-          <span style={{ fontSize: '1.5rem' }}>V</span> Verba
+          Verba
           <span style={{ 
             fontSize: '0.7rem', 
             border: '1px solid #ccc', 

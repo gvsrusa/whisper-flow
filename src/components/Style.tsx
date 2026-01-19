@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { AlignLeft, MessageSquare, Wand2 } from 'lucide-react';
 
 const Style = () => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Mic, Search, Layout, RefreshCw } from 'lucide-react';
 import Home from './Home';
 import Dictionary from './Dictionary';
@@ -13,7 +13,7 @@ interface MainContentProps {
 }
 
 const MainContent: React.FC<MainContentProps> = ({ activeTab, isRecording, onToggleRecording, transcriptionLog }) => {
-  const [searchTerm, setSearchTerm] = useState("");
+
 
   if (activeTab === 'home') return <Home />;
   if (activeTab === 'dictionary') return <Dictionary />;

@@ -19,10 +19,31 @@ function App() {
   const [model, setModel] = useState("whisper-large-v3");
   const [status, setStatus] = useState<"idle" | "recording" | "processing">("idle");
   const [transcriptionLog, setTranscriptionLog] = useState<string[]>([]);
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
   // Store full log here, maybe persist later
 
-  // Save settings to backend whenever they change
+  // Load settings from backend on startup
   useEffect(() => {
+    const load = async () => {
+      try {
+        const settings = await invoke<{ apiKey: string; provider: string; model: string }>("load_settings");
+        console.log("Loaded settings:", settings);
+        setApiKey(settings.apiKey || "");
+        setProvider(settings.provider || "groq");
+        setModel(settings.model || "whisper-large-v3");
+        setSettingsLoaded(true);
+      } catch (err) {
+        console.error("Failed to load settings:", err);
+        setSettingsLoaded(true); // Still mark as loaded to allow saving
+      }
+    };
+    load();
+  }, []);
+
+  // Save settings to backend whenever they change (only after initial load)
+  useEffect(() => {
+    if (!settingsLoaded) return; // Don't save until settings are loaded
+    
     const save = async () => {
       try {
         await invoke("save_settings", { 
@@ -33,7 +54,7 @@ function App() {
       }
     };
     save();
-  }, [apiKey, provider, model]);
+  }, [apiKey, provider, model, settingsLoaded]);
 
   // Listen for global hotkey events from backend
   useEffect(() => {

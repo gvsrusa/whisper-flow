@@ -1,5 +1,4 @@
-import React from 'react';
-import { Plus, Scissors, Copy } from 'lucide-react';
+import { Plus, Scissors } from 'lucide-react';
 
 const Snippets = () => {
     return (

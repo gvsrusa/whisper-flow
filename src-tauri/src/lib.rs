@@ -1,13 +1,68 @@
-mod audio;
 mod api_client;
+mod audio;
 
-use std::sync::Mutex;
-use tauri::{State, Manager, AppHandle, Emitter};
-use audio::AudioRecorder;
 use api_client::transcribe_openai_compatible;
+use audio::AudioRecorder;
+use std::fs;
+use std::path::PathBuf;
+use std::sync::Mutex;
+use tauri::{AppHandle, Emitter, Manager, State};
+
+/// Get the path to the settings file in the user's config directory
+fn get_settings_path() -> PathBuf {
+    let config_dir = dirs::config_dir()
+        .unwrap_or_else(|| std::env::temp_dir())
+        .join("whisper-flow");
+
+    // Create directory if it doesn't exist
+    let _ = fs::create_dir_all(&config_dir);
+
+    config_dir.join("settings.json")
+}
+
+/// Load settings from disk
+fn load_settings_from_disk() -> AppSettings {
+    let path = get_settings_path();
+
+    if path.exists() {
+        match fs::read_to_string(&path) {
+            Ok(content) => match serde_json::from_str(&content) {
+                Ok(settings) => {
+                    println!("Settings loaded from {:?}", path);
+                    return settings;
+                }
+                Err(e) => eprintln!("Failed to parse settings: {}", e),
+            },
+            Err(e) => eprintln!("Failed to read settings file: {}", e),
+        }
+    }
+
+    // Return default settings if file doesn't exist or can't be parsed
+    AppSettings {
+        api_key: "".into(),
+        provider: "groq".into(),
+        model: "whisper-large-v3".into(),
+    }
+}
+
+/// Save settings to disk
+fn save_settings_to_disk(settings: &AppSettings) -> Result<(), String> {
+    let path = get_settings_path();
+
+    let content = serde_json::to_string_pretty(settings)
+        .map_err(|e| format!("Failed to serialize settings: {}", e))?;
+
+    fs::write(&path, content).map_err(|e| format!("Failed to write settings file: {}", e))?;
+
+    println!("Settings saved to {:?}", path);
+    Ok(())
+}
 
 use enigo::{Enigo, Keyboard, Settings};
-use global_hotkey::{GlobalHotKeyManager, hotkey::{HotKey, Modifiers, Code}, GlobalHotKeyEvent, HotKeyState};
+use global_hotkey::{
+    hotkey::{Code, HotKey, Modifiers},
+    GlobalHotKeyEvent, GlobalHotKeyManager, HotKeyState,
+};
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -25,25 +80,51 @@ pub struct AppState {
 
 #[tauri::command]
 fn save_settings(state: State<AppState>, settings: AppSettings) -> Result<(), String> {
-    let mut s = state.settings.lock().map_err(|_| "Failed to lock settings")?;
-    *s = settings;
+    // Save to memory
+    let mut s = state
+        .settings
+        .lock()
+        .map_err(|_| "Failed to lock settings")?;
+    *s = settings.clone();
+
+    // Persist to disk
+    save_settings_to_disk(&settings)?;
+
     Ok(())
+}
+
+#[tauri::command]
+fn load_settings(state: State<AppState>) -> Result<AppSettings, String> {
+    let s = state
+        .settings
+        .lock()
+        .map_err(|_| "Failed to lock settings")?;
+    Ok(s.clone())
 }
 
 #[tauri::command]
 fn start_recording(state: State<AppState>) -> Result<String, String> {
     let mut recorder = state.recorder.lock().map_err(|_| "Failed to lock state")?;
-    let mut is_rec = state.is_recording.lock().map_err(|_| "Failed to lock state")?;
-    
+    let mut is_rec = state
+        .is_recording
+        .lock()
+        .map_err(|_| "Failed to lock state")?;
+
     // Check if already recording to prevent double assignments
     if *is_rec {
         return Ok("Already recording".to_string());
     }
 
     let path = std::env::temp_dir().join("whisper_flow_recording.wav");
-    recorder.start(path).map_err(|e| e.to_string())?;
+    if let Err(e) = recorder.start(path.clone()) {
+        eprintln!("Failed to start recording: {}", e);
+        // Try to log to a file for debugging
+        let log_path = std::env::temp_dir().join("whisper_debug.log");
+        let _ = std::fs::write(&log_path, format!("Start Error: {}", e));
+        return Err(e.to_string());
+    }
     *is_rec = true;
-    
+
     println!("Recording started...");
     Ok("Recording started".to_string())
 }
@@ -53,11 +134,14 @@ fn stop_and_transcribe(state: State<AppState>) -> Result<String, String> {
     // 1. Stop Recording
     {
         let mut recorder = state.recorder.lock().map_err(|_| "Failed to lock state")?;
-        let mut is_rec = state.is_recording.lock().map_err(|_| "Failed to lock state")?;
-        
+        let mut is_rec = state
+            .is_recording
+            .lock()
+            .map_err(|_| "Failed to lock state")?;
+
         if !*is_rec {
-             // If not recording, do nothing
-             return Ok("Not recording".to_string());
+            // If not recording, do nothing
+            return Ok("Not recording".to_string());
         }
 
         recorder.stop().map_err(|e| e.to_string())?;
@@ -65,10 +149,13 @@ fn stop_and_transcribe(state: State<AppState>) -> Result<String, String> {
     } // unlock recorder
 
     println!("Recording stopped.");
-    
+
     // 2. Read Settings
     let settings = {
-        let s = state.settings.lock().map_err(|_| "Failed to lock settings")?;
+        let s = state
+            .settings
+            .lock()
+            .map_err(|_| "Failed to lock settings")?;
         s.clone()
     };
 
@@ -87,10 +174,13 @@ fn stop_and_transcribe(state: State<AppState>) -> Result<String, String> {
         "groq" => "https://api.groq.com/openai/v1",
         "gemini" => "https://openrouter.ai/api/v1",
         "openrouter" => "https://openrouter.ai/api/v1",
-        _ => "https://openrouter.ai/api/v1"
+        _ => "https://openrouter.ai/api/v1",
     };
-    
-    println!("Transcribing with {} model {}...", settings.provider, settings.model);
+
+    println!(
+        "Transcribing with {} model {}...",
+        settings.provider, settings.model
+    );
     let text = transcribe_openai_compatible(&path, &settings.api_key, &settings.model, base_url)?;
     println!("Transcription: {}", text);
 
@@ -98,7 +188,7 @@ fn stop_and_transcribe(state: State<AppState>) -> Result<String, String> {
     match Enigo::new(&Settings::default()) {
         Ok(mut enigo) => {
             let _ = enigo.text(&text);
-        },
+        }
         Err(e) => {
             eprintln!("Failed to initialize Enigo (Keyboard): {:?}", e);
         }
@@ -124,10 +214,10 @@ fn toggle_recording_fn(app: &AppHandle) {
             let state = app_clone.state::<AppState>();
             match stop_and_transcribe(state.clone()) {
                 Ok(text) => {
-                     let _ = app_clone.emit("transcription-complete", text);
-                },
+                    let _ = app_clone.emit("transcription-complete", text);
+                }
                 Err(e) => {
-                     let _ = app_clone.emit("transcription-error", e);
+                    let _ = app_clone.emit("transcription-error", e);
                 }
             }
         });
@@ -143,25 +233,33 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .manage(AppState {
             recorder: Mutex::new(AudioRecorder::new()),
-            settings: Mutex::new(AppSettings { 
-                api_key: "".into(), 
-                provider: "openrouter".into(), 
-                model: "openai/whisper-large-v3".into() 
-            }),
+            settings: Mutex::new(load_settings_from_disk()),
             is_recording: Mutex::new(false),
         })
         .setup(|app| {
-            // Register Global Hotkey: Option+Space (Alt+Space)
+            // Trigger Microphone Permission on Startup
+
+            // Register Global Hotkey
+            // macOS: Option+Space (Alt+Space)
+            // Windows/Linux: Ctrl+Shift+Space (Alt+Space conflicts with window menu)
             let manager = GlobalHotKeyManager::new().unwrap();
+
+            #[cfg(target_os = "macos")]
             let hotkey = HotKey::new(Some(Modifiers::ALT), Code::Space);
-            
+
+            #[cfg(not(target_os = "macos"))]
+            let hotkey = HotKey::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::Space);
+
             if let Err(e) = manager.register(hotkey) {
                 eprintln!("Failed to register hotkey: {:?}", e);
             } else {
+                #[cfg(target_os = "macos")]
                 println!("Global Hotkey (Option+Space) registered successfully!");
+                #[cfg(not(target_os = "macos"))]
+                println!("Global Hotkey (Ctrl+Shift+Space) registered successfully!");
             }
 
-            // IMPORTANT: Manage the manager to keep it alive. 
+            // IMPORTANT: Manage the manager to keep it alive.
             // If dropped, hotkeys are unregistered.
             app.manage(manager);
 
@@ -180,7 +278,12 @@ pub fn run() {
             });
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![start_recording, stop_and_transcribe, save_settings])
+        .invoke_handler(tauri::generate_handler![
+            start_recording,
+            stop_and_transcribe,
+            save_settings,
+            load_settings
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Plus, Search, Trash2 } from 'lucide-react';
 
-const Dictionary = () => {
-    const [words, setWords] = useState([
+const Dictionary: React.FC = () => {
+    const [words] = useState([
         { id: 1, original: "Wispr", replacement: "Wispr" },
         { id: 2, original: "Gvsrusa", replacement: "GVS Rusa" }, // Custom example
     ]);
