@@ -22,33 +22,50 @@ Built with **Rust (Tauri)** and **React**, Verba lets you dictate text into *any
 
 ### macOS Installation
 
-1. Download the latest `Verba_x.x.x_macos.zip` from the [Releases Page](https://github.com/gvsrusa/whisper-flow/releases)
+**🚀 The Easiest Way (Recommended)**
+
+Copy and paste this one line into your Terminal. It handles everything for you (downloads, installs, and fixes the "damaged app" error).
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/gvsrusa/verba/main/scripts/install.sh | bash
+```
+
+**Manual Method**
+1. Download the latest `Verba_x.x.x_macos.zip` from the [Releases Page](https://github.com/gvsrusa/verba/releases)
 2. Extract the zip file
 3. **Right-click `install.command`** → **Open** → Click **Open** when prompted
 4. Grant **Accessibility** and **Microphone** permissions when prompted
 5. Configure your API key in Settings → Providers
 
 <details>
-<summary>⚠️ If you see "Verba is damaged and can't be opened"</summary>
+<summary>⚠️ Troubleshooting "Verba is damaged"</summary>
 
-Open **Terminal** and run:
+If the above methods fail, run this in Terminal:
 ```bash
-xattr -cr ~/Downloads/Verba_x.x.x_macos
+xattr -cr /Applications/Verba.app
 ```
-Then open `Verba.app` directly.
-
 </details>
 
 ### Windows Installation
-
-1. Download the latest `Verba_x.x.x_x64-setup.exe` or `.msi` from the [Releases Page](https://github.com/gvsrusa/whisper-flow/releases)
-2. Run the installer
-3. Launch Verba from the Start menu
-4. Configure your API key in Settings → Providers
-
-> **Note**: Windows may show a SmartScreen warning. Click "More info" → "Run anyway".
-
----
+ 
+ **🚀 The Easiest Way**
+ 
+ Copy and paste this into PowerShell:
+ 
+ ```powershell
+ iwr https://raw.githubusercontent.com/gvsrusa/verba/main/scripts/install.ps1 -useb | iex
+ ```
+ 
+ **Manual Method**
+ 
+ 1. Download the latest `Verba_x.x.x_x64-setup.exe` or `.msi` from the [Releases Page](https://github.com/gvsrusa/verba/releases)
+ 2. Run the installer
+ 3. Launch Verba from the Start menu
+ 4. Configure your API key in Settings → Providers
+ 
+ > **Note**: Windows may show a SmartScreen warning. Click "More info" → "Run anyway".
+ 
+ ---
 
 ## � Getting API Keys
 
@@ -194,8 +211,8 @@ You can change the hotkey in **Settings → General → Keyboard shortcuts**.
 ### Installation
 
 ```bash
-git clone https://github.com/gvsrusa/whisper-flow.git
-cd whisper-flow
+git clone https://github.com/gvsrusa/verba.git
+cd verba
 npm install
 ```
 
@@ -238,7 +255,7 @@ A: Remove the old entry in System Settings → Accessibility, then add the new a
 
 Your settings (including API keys) are stored locally at:
 ```
-~/Library/Application Support/whisper-flow/settings.json
+~/Library/Application Support/verba/settings.json
 ```
 
 ---
