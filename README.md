@@ -14,20 +14,40 @@ Built with **Rust (Tauri)** and **React**, this app mimics the functionality of 
 *   **Instant Typing**: The app simulates keyboard input to type the transcribed text directly into your active window (VS Code, Notes, Slack, etc.).
 *   **Privacy Focused**: Your API keys are stored locally. Audio is processed via your chosen provider.
 
-## 🚀 Getting Started
+## 📥 Downloads
 
-### Prerequisites
+**Already just want to use the app?**
+Go to the [Releases Page](https://github.com/yourusername/whisper-flow-clone/releases) to download the latest `.dmg` installer for macOS.
 
-To run or build this app, you need:
+1.  Download the `.dmg` file.
+2.  Open it and drag "Wispr Flow Clone" to your **Applications** folder.
+3.  Open the app.
 
-1.  **Rust**: [Install Rust](https://www.rust-lang.org/tools/install) (`curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`)
-2.  **Node.js**: [Install Node.js](https://nodejs.org/) (Use LTS version).
-3.  **Xcode Command Line Tools** (for macOS build):
+> **Note**: Since this app is not signed by Apple, you might need to Right-Click > Open and confirm you want to run it.
+
+## 🚀 Development Guide
+
+If you want to run the code locally or contribute, follow these steps.
+
+### 1. Prerequisites
+
+Ensure you have the following installed:
+
+*   **Node.js** (v18+ recommended):
+    ```bash
+    node -v
+    ```
+*   **Rust** (Latest stable):
+    ```bash
+    rustc --version
+    ```
+    *If missing*: `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
+*   **Xcode Command Line Tools**:
     ```bash
     xcode-select --install
     ```
 
-### Installation
+### 2. Installation
 
 1.  Clone the repository:
     ```bash
@@ -40,71 +60,65 @@ To run or build this app, you need:
     npm install
     ```
 
-3.  Run in Development Mode:
-    ```bash
-    npm run tauri dev
-    ```
-    This will compile the Rust backend and open the floating window.
+### 3. Running Locally
 
-## 🛠 Usage
+Start the development server with hot-reload:
 
-1.  **Permissions**: On first run, macOS will prompt for **Microphone** access. 
-    *   *Important*: For the app to type text for you, you must manually grant **Accessibility** permissions in `System Settings > Privacy & Security > Accessibility` to your Terminal (if running dev) or the App (if built).
-2.  **Configuration**:
-    *   Select your provider (e.g., **Groq** for speed).
-    *   Enter your API Key (starting with `gsk_...` for Groq).
-    *   The settings are auto-saved.
-3.  **Dictation**:
-    *   Click into any text field (e.g., a new Note).
-    *   Press **Option + Space**.
-    *   Speak your thought.
-    *   Press **Option + Space** again.
-    *   Watch the text appear magically!
+```bash
+npm run tauri dev
+```
 
-## 📦 Building for Release
+This command will:
+1.  Start the Vite frontend server.
+2.  Compile the Rust backend.
+3.  Launch the application window.
 
-To create a shareable macOS application (`.dmg` or `.app`):
+## 🛠 Usage & Configuration
+
+### Granting Permissions (Critical)
+For the app to type text into other windows, it needs **Accessibility Permissions**.
+
+1.  **Run the app**.
+2.  Go to **System Settings > Privacy & Security > Accessibility**.
+3.  Find your Terminal (if running via `npm run tauri dev`) or "Wispr Flow Clone" (if installed).
+4.  **Enable the toggle**.
+5.  *Restart the app if necessary*.
+
+### Setting Up AI Providers
+1.  Click the **Settings** (gear icon) in the app.
+2.  Go to **Providers**.
+3.  Select your preferred provider (e.g., **Groq**).
+4.  Paste your API Key (e.g., `gsk_...`).
+5.  Close settings.
+
+### Dictating
+1.  Click into any text input (e.g., Spotlight, Notes, Browser).
+2.  Press **Option + Space**.
+3.  Speak clearly.
+4.  Press **Option + Space** again to stop.
+5.  Wait for the text to appear.
+
+## 📦 Building for Production
+
+To create a `.dmg` installer yourself:
 
 ```bash
 npm run tauri build
 ```
 
-The output will be located in:
-`src-tauri/target/release/bundle/dmg/`
+The output file will be in: `src-tauri/target/release/bundle/dmg/`
 
-You can share this `.dmg` file with friends or coworkers. They can drag it to their Applications folder to install.
+## ❓ Troubleshooting
 
-### Publishing (Distribution)
+**Q: The app records but doesn't type anything.**
+A: Check **System Settings > Privacy & Security > Accessibility**. Ensure the app (or Terminal) has permission to control your computer.
 
-Since this is a GUI application (not a library), you typically **do not** publish it to `crates.io`. instead:
+**Q: "Option + Space" isn't working.**
+A: Another app (like Raycast or Spotlight) might be using this shortcut. You can check the logs in the terminal for "Global Hotkey registered" messages.
 
-1.  **GitHub Releases**: Create a Release on GitHub and upload the `.dmg` file.
-2.  **Brew Tap**: You can create a Homebrew formula so users can install it via `brew install`.
-
-## 🧪 Testing
-
-To ensure code quality:
-
-*   **Rust Logic**:
-    ```bash
-    cd src-tauri
-    cargo test
-    ```
-*   **Compilation Check**:
-    ```bash
-    cargo check
-    ```
-*   **Linting**:
-    ```bash
-    npm run lint
-    ```
-
-## 📝 Configuration Details
-
-The application stores settings locally.
-- **Config persistence**: Managed via Tauri state.
-- **Audio Format**: records 16-bit PCM WAV (compatible with OpenAI/Groq Whisper APIs).
+**Q: Audio isn't recording.**
+A: Ensure you granted **Microphone** permission when prompted. Check System Settings > Privacy & Security > Microphone.
 
 ## License
 
-This project is licensed under the MIT License - feel free to use, modify, and distribute properly.
+This project is licensed under the MIT License.
