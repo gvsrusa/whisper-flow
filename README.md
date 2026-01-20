@@ -263,8 +263,6 @@ Your settings (including API keys) are stored locally at:
 
 ## 💖 Funding & Support
 
-Also add the funding link to [GitHub Sponsors](https://github.com/sponsors/gvsrusa).
-
 If you find Verba useful, please consider [sponsoring the project](https://github.com/sponsors/gvsrusa). Your support helps keep the project alive and ensures future updates!
 
 Thank you for using Verba! 🙏
