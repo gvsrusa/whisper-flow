@@ -5,6 +5,7 @@ Built with **Rust (Tauri)** and **React**, Verba lets you dictate text into *any
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows-lightgrey.svg)
+[![Sponsor](https://img.shields.io/badge/sponsor-30363D?style=flat&logo=GitHub-Sponsors&logoColor=#EA4AAA)](https://github.com/sponsors/gvsrusa)
 
 ## ✨ Features
 
@@ -257,6 +258,16 @@ Your settings (including API keys) are stored locally at:
 ```
 ~/Library/Application Support/verba/settings.json
 ```
+
+---
+
+## 💖 Funding & Support
+
+Also add the funding link to [GitHub Sponsors](https://github.com/sponsors/gvsrusa).
+
+If you find Verba useful, please consider [sponsoring the project](https://github.com/sponsors/gvsrusa). Your support helps keep the project alive and ensures future updates!
+
+Thank you for using Verba! 🙏
 
 ---
 
